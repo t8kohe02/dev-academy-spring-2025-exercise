@@ -1,6 +1,6 @@
 # dev-academy-fall-2023-exercise
 
-This is the pre-assignment for Solita Dev Academy Finland spring 2023. But if you’re here just purely out of curiosity, feel free to snatch the idea and make your own city bike app just for the fun of it!
+This is the pre-assignment for Solita Dev Academy Finland January 2024. But if you’re here just purely out of curiosity, feel free to snatch the idea and make your own city bike app just for the fun of it!
 
 Let's imagine that you have received an interesting project offer to create a UI and a backend service for displaying data from journeys made with city bikes in the Helsinki Capital area.
 
@@ -18,7 +18,7 @@ Also, the database is created using dataset that has information about Helsinki 
 # The exercise
 Create a web application that uses a backend service to fetch the data. Backend can be made with any technology. We at Solita use for example (not in preference order) Java/Kotlin/C#/TypeScript but you are free to choose any other technology as well.
 
-You are provided with Docker setup, with contains a PostgreSQL database with all the necessary data for the exercise. Instructions for database setup here (linkki)
+You are provided with Docker setup, with contains a PostgreSQL database with all the necessary data for the exercise. 
 
 You can also freely choose the frontend technologies to use. The important part is to give good instructions on how to build and run the project.
 
@@ -53,6 +53,8 @@ Please note that running that might take couple of minutes
 
 ![alt text](login.png)
 
+Database is running at postgres://localhost:5432/citybike and the database name is citybike. Database comes with user academy (password: academy).
+
 # Database structure
 Database consists of two tables: station and journey.
 
@@ -75,4 +77,3 @@ Database consists of two tables: station and journey.
 | return_station_id | Journey end station | integer, references to station(id) |
 | distance | Distance of journey in meters | integer *NULL* |
 | duration | Duration of journey in seconds | integer *NULL* |
-
