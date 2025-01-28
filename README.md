@@ -61,7 +61,7 @@ Please note that running that might take couple of minutes
 Database is running at postgres://localhost:5432/electricity and the database name is electricity. Database comes with user academy (password: academy).
 
 # Database structure
-Database consists of two tables: station and journey.
+Database consists of one table electricityData.
 
 ## ElectricityData table
 | Column | Description | Type |
