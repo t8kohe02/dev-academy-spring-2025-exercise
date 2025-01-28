@@ -1,41 +1,46 @@
-# dev-academy-spring-2024-exercise
+# dev-academy-spring-2025-exercise
 
-This is the pre-assignment for Solita Dev Academy Finland January 2024. But if you’re here just purely out of curiosity, feel free to snatch the idea and make your own city bike app just for the fun of it!
+This is the pre-assignment for Solita Dev Academy Finland January 2025. But if you’re here just purely out of curiosity, feel free to snatch the idea and make your own app just for the fun of it!
 
-Let's imagine that you have received an interesting project offer to create a UI and a backend service for displaying data from journeys made with city bikes in the Helsinki Capital area.
-
-The exercise uses data that is owned by City Bike Finland. We provide database to you in a Docker container, but the original datasets can be downloaded from here:
-
-- https://dev.hsl.fi/citybikes/od-trips-2021/2021-05.csv
-- https://dev.hsl.fi/citybikes/od-trips-2021/2021-06.csv
-- https://dev.hsl.fi/citybikes/od-trips-2021/2021-07.csv
-
-Also, the database is created using dataset that has information about Helsinki Region Transport’s (HSL) city bicycle stations.
-
-- Dataset: https://opendata.arcgis.com/datasets/726277c507ef4914b0aec3cbcfcbfafc_0.csv
-- License and information: https://www.avoindata.fi/data/en/dataset/hsl-n-kaupunkipyoraasemat/resource/a23eef3a-cc40-4608-8aa2-c730d17e8902
+Let's imagine that you have received an interesting project offer to create a UI and a backend service for displaying data from electricity production, consumption and prices. 
+The exercise uses data that is owned by Fingrid and combines that with electricity price data from porssisahko.net. 
 
 # The exercise
-Create a web application that uses a backend service to fetch the data. Backend can be made with any technology. We at Solita use for example (not in preference order) Java/Kotlin/C#/TypeScript but you are free to choose any other technology as well.
+Create a web application that uses a backend service to fetch the data. Backend can be made with any technology. We at Solita use for example (not in preference order) Java/Kotlin/C#/TypeScript but you are free to choose any other technology as well. 
 
 You are provided with Docker setup, with contains a PostgreSQL database with all the necessary data for the exercise. 
 
-You can also freely choose the frontend technologies to use. The important part is to give good instructions on how to build and run the project.
+You can also freely choose the frontend technologies to use. The important part is to give good instructions on how to build and run the project. 
 
 Please return the exercise as a link to github repository. 
 
-# Functional requirements
-## Station list
-- List all stations
-- Link to single station views
+# Stuff to do 
 
-## Single station view
-- Station name
-- Station address
-- Total number of journeys starting from the station
-- Total number of journeys ending at the station
-- Average distance of journeys starting from the station
-- Avarage duration of journeys starting from the station
+## Daily statistics list (recommended features)
+- Total electricity consumption per day 
+- Total electricity production per day 
+- Average electricity price per day 
+- Longest consecutive time in hours, when electricity price has been negative, per day 
+
+## Additional features for daily statistics list
+- Pagination 
+- Ordering per column 
+- Searching 
+- Filtering 
+
+## Other additional features
+- Single day view 
+-- Total electricity consumption per day 
+-- Total electricity production per day 
+-- Average electricity price per day 
+-- Hour with most electricity consumption compared to production 
+-- Cheapest electricity hours for the day 
+- Graph visualisations 
+
+## Surprise us with 
+- Running backend in Docker 
+- Running backend in Cloud 
+- Implement E2E tests 
 
 # Instructions for running the database
 1. Install Docker Desktop on your computer (https://docs.docker.com/desktop/)
@@ -53,27 +58,17 @@ Please note that running that might take couple of minutes
 
 ![alt text](login.png)
 
-Database is running at postgres://localhost:5432/citybike and the database name is citybike. Database comes with user academy (password: academy).
+Database is running at postgres://localhost:5432/electricity and the database name is electricity. Database comes with user academy (password: academy).
 
 # Database structure
 Database consists of two tables: station and journey.
 
-## Station table
+## ElectricityData table
 | Column | Description | Type |
 | ----------- | ----------- | ----------- |
 | id | id, primary key | integer |
-| station_name | Name of the station | character varying(100) *NULL* |
-| station_address | Address of the station | character varying(100) *NULL* |
-| coordinate_x | X coordinate of the station | character varying(100) *NULL* |
-| coordinate_y | Y coordinate of the station | character varying(100) *NULL* |
-
-## Journey table
-| Column | Description | Type |
-| ----------- | ----------- | ----------- |
-| id | id, primary key | integer |
-| departure_date_time | Journey start timestamp | timestamp *NULL* |
-| return_date_time | Journey end timestamp | timestamp *NULL* |
-| departure_station_id | Journey start station | integer, references to station(id) |
-| return_station_id | Journey end station | integer, references to station(id) |
-| distance | Distance of journey in meters | integer *NULL* |
-| duration | Duration of journey in seconds | integer *NULL* |
+| date | date of the data point | DATE |
+| startTime | Starting time of the hour for the data point | TIMESTAMP |
+| productionAmount | Electricity production for the hour MWh/h | NUMERIC(11,5) *NULL* |
+| consumptionAmount | Electricity consumption for the hour kWh | NUMERIC(11,3) *NULL* |
+| hourlyPrice | Electricity price for the hour | NUMERIC(6,3) *NULL* |
