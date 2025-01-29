@@ -1,19 +1,47 @@
 version: '3.1'
 services:
-  db:
-    image: postgres
+  postgres:
+    build:
+      context: ./database
+      dockerfile: Dockerfile
+    container_name: my_postgres
     restart: always
     environment:
       POSTGRES_USER: academy
       POSTGRES_PASSWORD: academy
       POSTGRES_DB: electricity
-    build:
-      context: .
-      dockerfile: Dockerfile
     ports:
-      - 5432:5432
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
   adminer:
     image: adminer
     restart: always
     ports:
-      - 8088:8080
+      - "8088:8080"
+
+  backend:
+    build: ./backend
+    container_name: my_backend
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/electricity
+      SPRING_DATASOURCE_USERNAME: academy
+      SPRING_DATASOURCE_PASSWORD: academy
+    depends_on:
+      - postgres
+
+  frontend:
+    build: ./frontend
+    container_name: my_frontend
+    restart: always
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
