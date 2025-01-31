@@ -4,6 +4,8 @@ import com.backend.model.ElectricityData;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -14,5 +16,5 @@ public interface ElectricityDataRepository extends JpaRepository<ElectricityData
     List<ElectricityData> findByDate(LocalDate date);
 
     @Query("SELECT DISTINCT e.date FROM ElectricityData e ORDER BY e.date DESC")
-    List<LocalDate> findDistinctDateByOrderByDateDesc();
+    Page<LocalDate> findDistinctDateByOrderByDateDesc(Pageable pageable);
 }

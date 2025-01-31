@@ -7,8 +7,10 @@ import com.backend.service.ElectricityDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+
 import java.time.LocalDate;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/electricity")
@@ -20,12 +22,14 @@ public class ElectricityDataController {
     // Endpoint to get daily statistics for specific date
     @GetMapping("/daily-stats/{date}")
     public DailyStatistics getDailyStatistics(@PathVariable String date) {
-        return service.getDailyStatistics(LocalDate.parse(date));
+        return service.calculateDailyStatistics(LocalDate.parse(date));
     }
 
-    // Endpoint to fetch all unique dates with daily statistics
+    // Endpoint to fetch paginated daily statistics
     @GetMapping("/daily-stats/all")
-    public List<DailyStatisticsWithDate> getAllDailyStatistics() {
-        return service.getAllDailyStatistics();
+    public Page<DailyStatisticsWithDate> getAllDailyStatistics(
+            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "30") int size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        return service.getAllDailyStatistics(pageRequest);
     }
 }
