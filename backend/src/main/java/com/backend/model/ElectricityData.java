@@ -13,17 +13,22 @@ public class ElectricityData {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name = "date")
     private LocalDate date;
 
+    @Column(name = "starttime")
     private LocalDateTime startTime;
 
+    @Column(name = "productionamount", precision = 11, scale = 5)
     private BigDecimal productionAmount;
 
+    @Column(name = "consumptionamount", precision = 11, scale = 3)
     private BigDecimal consumptionAmount;
 
+    @Column(name = "hourlyprice", precision = 6, scale = 3)
     private BigDecimal hourlyPrice;
 
-    // Constructors
+    
     public ElectricityData() {}
 
     public ElectricityData(LocalDate date, LocalDateTime startTime, BigDecimal productionAmount,
