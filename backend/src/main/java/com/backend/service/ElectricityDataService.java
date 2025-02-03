@@ -2,6 +2,7 @@ package com.backend.service;
 
 import com.backend.dto.DailyStatistics;
 import com.backend.dto.DailyStatisticsWithDate;
+import com.backend.dto.DailyChartStatistics;
 import com.backend.model.ElectricityData;
 import com.backend.repository.ElectricityDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +13,10 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ElectricityDataService {
@@ -74,4 +78,42 @@ public class ElectricityDataService {
         // Return the calculated statistics for the given date
         return new DailyStatistics(totalConsumption, totalProduction, averagePrice, longestNegativePriceDuration);
     }
+
+    public List<DailyChartStatistics> getDailyStatisticsForChart(String month) {
+        YearMonth yearMonth = YearMonth.parse(month);
+        LocalDate startDate = yearMonth.atDay(1);
+        LocalDate endDate = yearMonth.atEndOfMonth();
+
+        // Fetch all data for the specified month
+        List<ElectricityData> data = repository.findByDateBetween(startDate, endDate);
+
+        // Group data by date
+        Map<LocalDate, List<ElectricityData>> groupedByDate = data.stream()
+            .collect(Collectors.groupingBy(ElectricityData::getDate));
+
+        // Compute daily statistics
+        return groupedByDate.entrySet().stream().map(entry -> {
+            LocalDate date = entry.getKey();
+            List<ElectricityData> dayData = entry.getValue();
+
+            BigDecimal totalConsumption = dayData.stream()
+                .map(ElectricityData::getConsumptionAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add); // SUM
+
+            BigDecimal totalProduction = dayData.stream()
+                .map(ElectricityData::getProductionAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add); // SUM
+
+            double avgPrice = dayData.stream()
+                .map(ElectricityData::getHourlyPrice)
+                .mapToDouble(BigDecimal::doubleValue)
+                .average().orElse(0); // AVERAGE
+
+            return new DailyChartStatistics(date, 
+                totalConsumption.doubleValue(), 
+                totalProduction.doubleValue(), 
+                avgPrice);
+        }).collect(Collectors.toList());
+    }   
+    
 }
