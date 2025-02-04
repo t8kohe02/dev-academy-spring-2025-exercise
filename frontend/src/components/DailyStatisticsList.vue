@@ -1,17 +1,17 @@
 <template>
   <div>
-    <h1>Daily Statistics</h1>
-
-    <!-- Search input for filtering by date -->
-    <input 
-      type="date" 
-      v-model="searchDate" 
-      @change="searchStatistics" 
-      placeholder="Search by date"
-    />
-
-    <!-- Back button to go back to paginated view after search -->
-    <button v-if="searchDate" @click="backToPaginatedView">Back to Paginated View</button>
+    <div class="input-container">
+      <span class="search-label">Daily statistics </span>
+      <div class="input-text">
+        <span>Search: </span>
+        <input
+          type="date"
+          v-model="searchDate"
+          @change="searchStatistics"
+          placeholder="Search by date"
+        />
+      </div>
+    </div>
 
     <!-- Table to display fetched daily statistics -->
     <table border="1">
@@ -25,100 +25,134 @@
         </tr>
       </thead>
       <tbody>
-        <!-- When there is data, loop through statisticsList -->
         <tr v-for="(stat, index) in statisticsList" :key="index">
-          <td>{{ stat.date }}</td>
+          <td>{{ formatDate(stat.date) }}</td>
           <td>{{ stat.statistics.totalConsumption }}</td>
           <td>{{ stat.statistics.totalProduction }}</td>
           <td>{{ stat.statistics.averagePrice }}</td>
           <td>{{ stat.statistics.longestNegativePriceDuration }}</td>
         </tr>
-        <!-- If no data is found, show a "No Data" message -->
         <tr v-if="statisticsList.length === 0">
           <td colspan="5">No data found</td>
         </tr>
       </tbody>
     </table>
 
-    <!-- Pagination controls for paginated data -->
+    <button v-if="searchDate" @click="backToPaginatedView">Return</button>
+
     <div class="pagination" v-if="!searchDate">
-      <button @click="changePage(page - 1)" :disabled="page <= 0">Previous</button>
+      <button @click="changePage(page - 1)" :disabled="page <= 0">◀--</button>
       <span>Page {{ page + 1 }} of {{ totalPages }}</span>
-      <button @click="changePage(page + 1)" :disabled="page >= totalPages - 1">Next</button>
+      <button @click="changePage(page + 1)" :disabled="page >= totalPages - 1">--▶</button>
     </div>
   </div>
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
-import axios from 'axios'
+  import { ref, onMounted } from 'vue'
+  import axios from 'axios'
 
-export default {
-  name: 'DailyStatisticsList',
-  setup() {
-    const searchDate = ref(''); // Holds the selected search date
-    const statisticsList = ref([]); // Holds the statistics list (either paginated or searched)
-    const page = ref(0); // Current page number
-    const totalPages = ref(0); // Total number of pages
+  export default {
+    name: 'DailyStatisticsList',
+    setup() {
+      const searchDate = ref('')
+      const statisticsList = ref([])
+      const page = ref(0)
+      const totalPages = ref(0)
 
-    // Function to fetch data based on search date or pagination
-    const fetchStatistics = () => {
-      const endpoint = searchDate.value
-        ? `http://localhost:8080/api/electricity/daily-stats/${searchDate.value}` // Fetch by date if searchDate is selected
-        : `http://localhost:8080/api/electricity/daily-stats/all?page=${page.value}&size=10`; // Fetch paginated data if no date is selected
+      const fetchStatistics = () => {
+        const endpoint = searchDate.value
+          ? `http://localhost:8080/api/electricity/daily-stats/${searchDate.value}` // Fetch by date if searchDate is selected
+          : `http://localhost:8080/api/electricity/daily-stats/all?page=${page.value}&size=10` // Fetch paginated data if no date is selected
 
-      axios.get(endpoint)
-        .then(response => {
-          if (searchDate.value) {
-            // For a specific date, wrap the statistics in an object with date
-            statisticsList.value = [{
-              date: searchDate.value, // Manually add the search date
-              statistics: response.data, // The statistics returned from your backend
-            }];
-            totalPages.value = 1; // Only one result, so totalPages is 1
-          } else {
-            statisticsList.value = response.data.content; // Paginated data
-            totalPages.value = response.data.totalPages; // Total number of pages
-          }
-        })
-        .catch(error => {
-          console.error("There was an error fetching the data:", error);
-        });
-    };
-
-    // Fetch statistics on initial load
-    onMounted(fetchStatistics);
-
-    // Change page handler
-    const changePage = (newPage) => {
-      if (newPage >= 0 && newPage < totalPages.value) {
-        page.value = newPage;
-        fetchStatistics(); // Fetch data for the new page
+        axios
+          .get(endpoint)
+          .then((response) => {
+            if (searchDate.value) {
+              statisticsList.value = [
+                {
+                  date: searchDate.value,
+                  statistics: response.data
+                }
+              ]
+              totalPages.value = 1
+            } else {
+              statisticsList.value = response.data.content
+              totalPages.value = response.data.totalPages
+            }
+          })
+          .catch((error) => {
+            console.error('There was an error fetching the data:', error)
+          })
       }
-    };
 
-    // Function to handle search by date
-    const searchStatistics = () => {
-      page.value = 0; // Reset to first page when searching
-      fetchStatistics(); // Fetch data based on the search date
-    };
+      // Fetch statistics on initial load
+      onMounted(fetchStatistics)
 
-    // Function to go back to paginated view
-    const backToPaginatedView = () => {
-      searchDate.value = ''; // Clear the search date
-      page.value = 0; // Reset to the first page
-      fetchStatistics(); // Fetch paginated data again
-    };
+      const formatDate = (dateString) => {
+        const date = new Date(dateString)
+        const day = String(date.getDate()).padStart(2, '0')
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        const year = date.getFullYear()
 
-    return {
-      searchDate,
-      statisticsList,
-      page,
-      totalPages,
-      changePage,
-      searchStatistics,
-      backToPaginatedView,
-    };
+        return `${day}.${month}.${year}`
+      }
+
+      const changePage = (newPage) => {
+        if (newPage >= 0 && newPage < totalPages.value) {
+          page.value = newPage
+          fetchStatistics()
+        }
+      }
+
+      const searchStatistics = () => {
+        page.value = 0
+        fetchStatistics()
+      }
+
+      const backToPaginatedView = () => {
+        searchDate.value = ''
+        page.value = 0
+        fetchStatistics()
+      }
+
+      return {
+        searchDate,
+        statisticsList,
+        page,
+        totalPages,
+        changePage,
+        searchStatistics,
+        backToPaginatedView,
+        formatDate
+      }
+    }
   }
-};
 </script>
+
+<style scoped>
+  .input-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Ensures spacing between label and search */
+    max-width: 800px; /* Adjust width as needed */
+    margin: 0 auto 10px auto; /* Centers the container */
+    gap: 50px; /* Large gap between label and search */
+  }
+
+  .search-container {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Space between "Search:" and input */
+  }
+
+  .search-label {
+    font-weight: bold;
+    white-space: nowrap; /* Prevents wrapping */
+    flex-shrink: 0; /* Prevents it from getting smaller */
+  }
+
+  .pagination {
+    margin-top: 5px;
+  }
+</style>
