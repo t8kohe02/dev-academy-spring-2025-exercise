@@ -15,6 +15,8 @@ public interface ElectricityDataRepository extends JpaRepository<ElectricityData
 
     List<ElectricityData> findByDate(LocalDate date);
 
+    List<ElectricityData> findByDateBetween(LocalDate startDate, LocalDate endDate);
+
     @Query("SELECT DISTINCT e.date FROM ElectricityData e ORDER BY e.date DESC")
     Page<LocalDate> findDistinctDateByOrderByDateDesc(Pageable pageable);
 }
